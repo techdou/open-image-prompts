@@ -1,18 +1,48 @@
-.DS_Store
-*.log
+# ---- secrets & local env (never commit) ----
 .env
 .env.*
+*.local
+*.pem
+*.key
+
+# ---- editor / dev-tool configs (keep dev setup out of history) ----
+.vscode/
+.idea/
+.cursor/
+.zcode/
+.claude/
+.agents/
+.trae/
+.windsurf/
+
+# ---- internal notes (private docs stay out of the repo) ----
+notes/
+NOTES*.md
+TODO*.md
+*.internal.md
+
+# ---- python ----
 __pycache__/
 *.py[cod]
+.venv/
+
+# ---- node ----
 node_modules/
 web/node_modules/
 web/dist/
+
+# ---- runtime data & dataset assets ----
+# Dataset assets come from GitHub Releases via scripts/fetch_dataset.py
+.oip/
 db/*.db
 db/*.db-wal
 db/*.db-shm
-.oip/
 db/*.lock
-
-# Dataset assets come from GitHub Releases via scripts/fetch_dataset.py
-images/
 db/prompts.db.gz
+images/
+
+# ---- logs & OS files ----
+*.log
+.DS_Store
+Thumbs.db
+Desktop.ini

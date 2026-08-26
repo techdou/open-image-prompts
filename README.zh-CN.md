@@ -13,11 +13,21 @@
 - `img-gen-taste`：把模糊需求整理成明确的美术方向。
 - `img-gen-prompts`：检索可追溯的提示词—图片参考，并打开本地对比画廊。
 
+> **关于本仓库** — 这是 [techdou](https://github.com/techdou) 的个人二创分支，基于上游项目 [NanmiCoder/open-image-prompts](https://github.com/NanmiCoder/open-image-prompts)。除同步上游数据发布外，还包含一批界面与交互优化：默认浅色主题 + 一键切换深色、favicon/页头/页脚统一的几何 Logo、重排的手机端筛选布局、触屏设备卡片信息常显等。详见[本分支的改动](#本分支的改动)。
+
 用编程智能体接入？[AGENTS.md](./AGENTS.md) 是精简版的安装、端口与 Skill 约定说明。
 
 公开数据集包含 **16,818 条来源提示词**、**29,738 张图片**、**33,628 条翻译**、**195,838 条有效 v2 提示词标签**和 **185 个封闭视觉标签**。打标模型、回填工具、供应商配置、测试批次、错误日志以及其他打标过程记录均不在公开仓库中。以上数字由 `npm run verify:docs` 与 `data/public-corpus.json` 对账。
 
 数据资产通过 [GitHub Releases](https://github.com/NanmiCoder/open-image-prompts/releases) 分发（不再使用 Git LFS）：仓库克隆保持轻量，`scripts/fetch_dataset.py` 会下载 SQLite 归档（约 80 MB）以及可选的按月图片包（合计约 4.3 GB），并做 sha256 校验。完整资产清单见 `data/dataset-manifest.json`。
+
+## 本分支的改动
+
+- **主题系统** — 默认浅色「Day Gallery」主题，页头按钮一键切换回原始深色「Night Gallery」；选择保存在 `localStorage`，首帧渲染前生效（不闪屏），并同步手机浏览器地址栏颜色。
+- **主题语义分离** — 叠在图片上的元素（卡片渐变、徽章、详情弹窗媒体区）在两种主题下都保持深色灯箱；提示词文本框等凹陷容器跟随主题变化。
+- **统一 Logo** — 几何「OI」标识（黄铜圆角方块）贯穿 favicon、页头、页脚。
+- **手机端布局** — 搜索、排序、筛选行重新分组并留出呼吸空间；排序切换器不再与筛选标签挤在一起；触屏设备上卡片摘要、作者与复制按钮常显。
+- **细节打磨** — 深色主题的全局滚动条、画廊浏览时筛选栏自动紧凑收起（按 `/` 可随时唤出搜索框）。
 
 ## 代码仓库和数据集的关系
 
@@ -56,7 +66,7 @@ python3 scripts/fetch_dataset.py --db-only
 先安装 [Git](https://git-scm.com/downloads) 和 [Node.js](https://nodejs.org/) 20.19+ 或 22.12+，然后克隆仓库：
 
 ```bash
-git clone https://github.com/NanmiCoder/open-image-prompts.git
+git clone https://github.com/techdou/open-image-prompts.git
 cd open-image-prompts
 ```
 
@@ -75,6 +85,8 @@ start.bat
 也可以直接在文件管理器中双击 `start.bat`。启动脚本会按需安装 [uv](https://docs.astral.sh/uv/)、创建兼容的 Python 环境、从 GitHub Releases 下载数据集、安装前端依赖，并同时启动前后端。打开终端输出的本地地址即可。如果想跳过体积较大的图片包（画廊会回退到原始来源图片地址），启动前设置 `OIP_FETCH_SKIP_IMAGES=1`。
 
 首次启动会把压缩 SQLite 解压到已忽略的 `.oip/runtime/`；后续启动会复用 Python 环境，并按锁文件刷新依赖。
+
+日常改前端时，可以用 `node web/scripts/with_api.mjs dev` 同时启动 API 和 Vite 开发服务器。
 
 ## 数据集资产
 
@@ -118,8 +130,8 @@ docker run --rm --name open-image-prompts -p 4173:4173 open-image-prompts
 查看并安装两个 Skill：
 
 ```bash
-npx skills add NanmiCoder/open-image-prompts --list
-npx skills add NanmiCoder/open-image-prompts -g
+npx skills add techdou/open-image-prompts --list
+npx skills add techdou/open-image-prompts -g
 ```
 
 `img-gen-taste` 使用内置风格卡，可以直接工作。`img-gen-prompts` 使用本仓库的公开 SQLite 和已审核图片：
@@ -132,7 +144,7 @@ npm run status
 准备完成后会返回 `"active_taxonomy_version": "oip-visual-v2"` 和 `"ready": true`。
 
 搜索结果中的 `results` 始终是严格匹配。如果严格结果不足，独立的
-`related_results` 会补充“仅缺少一个已声明审美偏好”的图片侧确认参考，
+`related_results` 会补充"仅缺少一个已声明审美偏好"的图片侧确认参考，
 不会把它冒充严格命中。这项能力不增加向量数据库、模型下载、API Key 或
 Python 依赖。可以运行包含相关图片人工视觉判定的 72 条中英双语标注回归基准：
 
@@ -154,6 +166,22 @@ npm run test:retrieval
 
 更多信息见 [DATASET.md](./DATASET.md)、[DATA_LICENSE.md](./DATA_LICENSE.md) 和机器可读的 [公开语料清单](./data/public-corpus.json)。
 
+## 目录结构
+
+```text
+open-image-prompts/
+├── server/       # 本地 API（只读 SQLite）
+├── web/          # React + Vite 前端（画廊、筛选、提示词详情）
+├── skills/       # 可安装的 Agent Skills（img-gen-prompts、img-gen-taste）
+├── retrieval/    # 检索引擎与意图配置
+├── scripts/      # 数据集下载、校验与工具脚本
+├── data/         # 随仓库提交的轻量数据索引与清单
+├── taxonomy/     # 视觉标签体系（oip-visual-v2）
+├── evals/        # 检索基准测试
+├── runtime/      # 运行时辅助（归档数据库、提示词库）
+└── tests/        # API 与画廊测试
+```
+
 ## 验证
 
 ```bash
@@ -170,3 +198,5 @@ API 与 Skill 均以只读 immutable 模式打开 SQLite。所有服务默认只
 ## 许可证
 
 应用代码与 Skill 指令使用 [MIT License](./LICENSE)。数据许可和第三方内容边界单独记录在 [DATA_LICENSE.md](./DATA_LICENSE.md)。
+
+本分支沿用上游的 MIT 代码许可。感谢 [NanmiCoder](https://github.com/NanmiCoder) 与所有上游贡献者的原始项目和持续的数据集发布。

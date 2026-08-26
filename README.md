@@ -13,12 +13,22 @@ An open, local-first visual prompt archive with two installable Agent Skills:
 - `img-gen-taste` turns a rough brief into a clear art direction.
 - `img-gen-prompts` retrieves traceable prompt-image references and opens a local comparison gallery.
 
+> **About this fork** — this is the personal fork of [techdou](https://github.com/techdou), based on the upstream project [NanmiCoder/open-image-prompts](https://github.com/NanmiCoder/open-image-prompts). Beyond tracking upstream dataset releases, it ships a set of UI/UX refinements: a light theme by default with a one-click dark-mode toggle, a unified geometric logo across favicon/header/footer, a reworked mobile filter layout, and touch-device card treatment. See [What's different in this fork](#whats-different-in-this-fork).
+
 Working through a coding agent? [AGENTS.md](./AGENTS.md) is the condensed setup,
 port, and Skill contract.
 
 The public dataset contains **16,818 source prompts**, **29,738 images**, **33,628 translations**, **195,838 active v2 prompt labels**, and a closed taxonomy of **185 visual labels**. Labeling models, backfill tools, provider configuration, test runs, error logs, and other labeling-process records are not included. These counts are checked against `data/public-corpus.json` by `npm run verify:docs`.
 
 Dataset assets ship through [GitHub Releases](https://github.com/NanmiCoder/open-image-prompts/releases) instead of Git LFS: the repository clone stays small, and `scripts/fetch_dataset.py` downloads the SQLite archive (~80 MB) plus optional monthly image packs (~4.3 GB total) with sha256 verification. See `data/dataset-manifest.json` for the exact asset list.
+
+## What's different in this fork
+
+- **Theme system** — light ("Day Gallery") is the default; the header toggle switches to the original dark ("Night Gallery") theme. The choice persists in `localStorage`, applies before first paint (no flash), and keeps the mobile browser chrome color in sync.
+- **Theme-aware semantics** — elements layered on top of photos (card gradients, badges, dialog media panel) stay dark in both themes; recessed surfaces like the prompt text well adapt to the active theme.
+- **Unified logo** — one geometric "OI" mark (brass rounded square) shared by the favicon, header, and footer.
+- **Mobile layout** — search, sort, and filter rows are regrouped with breathing room; the sort switcher no longer collides with filter chips; card summaries, authors, and the copy action are always visible on touch devices.
+- **Polish** — dark-themed page scrollbar, compact sticky filter bar while scrolling the gallery (search row collapses, `/` refocuses search).
 
 ## Repository vs. dataset assets
 
@@ -57,7 +67,7 @@ When the dataset updates, Git commits normally only change small files such as `
 Install [Git](https://git-scm.com/downloads) and [Node.js](https://nodejs.org/) 20.19+ or 22.12+, then clone the repository:
 
 ```bash
-git clone https://github.com/NanmiCoder/open-image-prompts.git
+git clone https://github.com/techdou/open-image-prompts.git
 cd open-image-prompts
 ```
 
@@ -76,6 +86,8 @@ start.bat
 You can also double-click `start.bat` in File Explorer. The launcher installs [uv](https://docs.astral.sh/uv/) when needed, creates a compatible Python environment, downloads the dataset from GitHub Releases, installs the frontend packages, and starts both services. Open the local URL printed in the terminal. To skip the multi-gigabyte image packs (the gallery then falls back to original source URLs), set `OIP_FETCH_SKIP_IMAGES=1` before starting.
 
 The first start expands the compressed SQLite archive into the ignored `.oip/runtime/` directory. Later starts reuse the Python environment while refreshing locked dependencies.
+
+For day-to-day frontend work, `node web/scripts/with_api.mjs dev` starts the API and the Vite dev server together.
 
 ## Dataset assets
 
@@ -119,8 +131,8 @@ The build downloads the SQLite archive from GitHub Releases (network access to g
 List and install both Skills:
 
 ```bash
-npx skills add NanmiCoder/open-image-prompts --list
-npx skills add NanmiCoder/open-image-prompts -g
+npx skills add techdou/open-image-prompts --list
+npx skills add techdou/open-image-prompts -g
 ```
 
 `img-gen-taste` works immediately from its bundled style cards. `img-gen-prompts` uses this repository's public SQLite archive and fetched images (`npm run data:pull` downloads both):
@@ -167,6 +179,22 @@ It does **not** contain labeling candidates, model/provider settings, run IDs, l
 
 See [DATASET.md](./DATASET.md), [DATA_LICENSE.md](./DATA_LICENSE.md), and the machine-readable [public corpus manifest](./data/public-corpus.json).
 
+## Project structure
+
+```text
+open-image-prompts/
+├── server/       # local API (read-only SQLite)
+├── web/          # React + Vite frontend (gallery, filters, prompt dialog)
+├── skills/       # installable Agent Skills (img-gen-prompts, img-gen-taste)
+├── retrieval/    # retrieval engine and intents
+├── scripts/      # dataset download, verification, utilities
+├── data/         # committed lightweight dataset indexes and manifests
+├── taxonomy/     # visual label taxonomy (oip-visual-v2)
+├── evals/        # retrieval benchmark
+├── runtime/      # runtime helpers (archive db, prompt library)
+└── tests/        # API and gallery tests
+```
+
 ## Validate a checkout
 
 ```bash
@@ -183,3 +211,5 @@ The API and Skill open SQLite in read-only immutable mode. Every service binds `
 ## License
 
 Application code and Skill instructions are available under the [MIT License](./LICENSE). Dataset licensing and third-party-content boundaries are documented separately in [DATA_LICENSE.md](./DATA_LICENSE.md).
+
+This fork keeps the upstream MIT license for code. Thanks to [NanmiCoder](https://github.com/NanmiCoder) and all upstream contributors for the original project and the ongoing dataset releases.
