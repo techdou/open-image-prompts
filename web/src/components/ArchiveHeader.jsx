@@ -1,7 +1,9 @@
+import { Moon, Sun } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { LANG_OPTIONS, useLang } from '../i18n'
 import { firstImageSources } from '../media'
+import Logo from './ui/Logo'
 import SmartImage from './ui/SmartImage'
 
 const statKeys = ['prompts', 'images', 'authors', 'tools']
@@ -38,7 +40,52 @@ function Stat({ value, label, loading }) {
   )
 }
 
-const GITHUB_REPO_URL = 'https://github.com/NanmiCoder/open-image-prompts'
+const GITHUB_REPO_URL = 'https://github.com/techdou/open-image-prompts'
+
+const THEME_STORAGE_KEY = 'open-image-prompts-theme'
+const THEME_COLORS = { light: '#f7f5ef', dark: '#09090b' }
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+  } catch {
+    /* private mode — theme just won't persist */
+  }
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme])
+}
+
+function readInitialTheme() {
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
+}
+
+function ThemeToggle() {
+  const { t } = useLang()
+  const [theme, setTheme] = useState(readInitialTheme)
+
+  function toggle() {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    applyTheme(next)
+    setTheme(next)
+  }
+
+  const isDark = theme === 'dark'
+  const label = isDark ? t('nav.theme.light') : t('nav.theme.dark')
+  const Icon = isDark ? Sun : Moon
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={label}
+      title={label}
+      className="focus-ring grid size-8 place-items-center rounded-full border border-line bg-surface/60 text-muted transition-colors duration-300 hover:border-line-strong hover:bg-elevate hover:text-ink"
+    >
+      <Icon size={15} weight="fill" />
+      <span className="sr-only">{label}</span>
+    </button>
+  )
+}
 
 function GithubLink() {
   const { t } = useLang()
@@ -134,9 +181,7 @@ export default function ArchiveHeader({ stats, loading, items, onSelect }) {
       <div className="relative mx-auto w-full max-w-[1760px] px-5 md:px-10">
         <nav className="flex h-16 items-center justify-between border-b border-line" aria-label={t('nav.label')}>
           <a href="./" className="group inline-flex items-center gap-3 focus-ring">
-            <span className="grid size-8 place-items-center rounded-lg bg-brass font-mono text-[13px] font-bold text-abyss transition-transform duration-300 group-hover:-rotate-6">
-              OI
-            </span>
+            <Logo className="size-8 transition-transform duration-300 group-hover:-rotate-6" />
             <span className="text-sm font-semibold tracking-tight">Open Image Prompts</span>
           </a>
 
@@ -146,6 +191,7 @@ export default function ArchiveHeader({ stats, loading, items, onSelect }) {
               {t('nav.status')}
             </div>
             <GithubLink />
+            <ThemeToggle />
             <LangSwitch />
           </div>
         </nav>

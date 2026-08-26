@@ -4,7 +4,7 @@ import {
   SortDescending,
   X,
 } from '@phosphor-icons/react'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../i18n'
 import SelectMenu from './ui/SelectMenu'
 
@@ -43,6 +43,20 @@ export default function FilterBar({
 }) {
   const { t, locale } = useLang()
   const composingRef = useRef(false)
+  const sentinelRef = useRef(null)
+  const [stuck, setStuck] = useState(false)
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(
+      ([entry]) => setStuck(!entry.isIntersecting),
+      { rootMargin: '-1px 0px 0px 0px', threshold: 0 },
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
+
   const chipTools = popularTools.slice(0, CHIP_LIMIT)
   const chipTags = popularTags.slice(0, TAG_CHIP_LIMIT)
   const selectedInChips = !selectedTool || chipTools.some(({ tool }) => tool === selectedTool)
@@ -50,12 +64,14 @@ export default function FilterBar({
   const selectedTagLabel = tags.find((tag) => tag.value === selectedTag)?.label || selectedTag
 
   return (
-    <section className="glass-bar sticky top-0 z-30 border-b border-line">
+    <>
+      <div ref={sentinelRef} aria-hidden="true" className="h-px" />
+      <section data-stuck={stuck} className="filter-bar glass-bar sticky top-0 z-30 border-b border-line">
       <div className="mx-auto w-full max-w-[1760px] px-5 py-4 md:px-10">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="filter-bar-search-row flex flex-wrap items-center gap-3 max-sm:gap-y-3.5">
           <form
             role="search"
-            className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:flex-1"
+            className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:flex-1 max-sm:order-1"
             onSubmit={(event) => {
               event.preventDefault()
               if (!composingRef.current) onQuerySubmit()
@@ -120,7 +136,7 @@ export default function FilterBar({
             </span>
           </form>
 
-          <div className="grid h-11 shrink-0 grid-cols-2 rounded-full border border-line bg-surface/80 p-1">
+          <div className="grid h-11 shrink-0 grid-cols-2 rounded-full border border-line bg-surface/80 p-1 max-sm:order-3 max-sm:ml-auto max-sm:h-10">
             <SortButton
               active={sortOrder === 'newest'}
               onClick={() => onSortChange('newest')}
@@ -138,7 +154,7 @@ export default function FilterBar({
           </div>
 
           <p
-            className="shrink-0 font-mono text-[11px] tabular-nums tracking-wide text-muted max-sm:ml-auto"
+            className="shrink-0 font-mono text-[11px] tabular-nums tracking-wide text-muted max-sm:order-2 max-sm:mr-auto"
             aria-live="polite"
             aria-atomic="true"
           >
@@ -147,7 +163,7 @@ export default function FilterBar({
           </p>
         </div>
 
-        <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
+        <div className="mt-3.5 flex flex-wrap items-center gap-2.5 max-sm:mt-5 max-sm:gap-y-3">
           <div className="chip-row order-1 flex w-full min-w-0 items-center gap-2 overflow-x-auto py-0.5 lg:order-none lg:w-auto lg:flex-1">
             <button type="button" className="chip focus-ring" data-active={!selectedTool} onClick={() => onToolChange('')} disabled={disabled}>
               {t('filter.allTools')}
@@ -254,7 +270,8 @@ export default function FilterBar({
           </div>
         )}
       </div>
-    </section>
+      </section>
+    </>
   )
 }
 

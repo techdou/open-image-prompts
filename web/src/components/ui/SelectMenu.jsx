@@ -128,7 +128,7 @@ export default function SelectMenu({
                   value={filter}
                   onChange={(event) => setFilter(event.target.value)}
                   placeholder={searchPlaceholder}
-                  className="focus-ring h-9 w-full rounded-xl border border-line bg-abyss/60 pl-8.5 pr-3 text-[13px] text-ink placeholder:text-faint"
+                  className="focus-ring h-9 w-full rounded-xl border border-line bg-well/60 pl-8.5 pr-3 text-[13px] text-ink placeholder:text-faint"
                 />
               </label>
             )}

@@ -2,11 +2,19 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2309090b'/><path d='M16 17h10l6 10 6-10h10L37 32l11 15H38l-6-10-6 10H16l11-15Z' fill='%23e2a75b'/></svg>" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#09090b" />
+    <meta name="theme-color" content="#f7f5ef" />
     <meta name="description" content="浏览好看的 AI 图片，查看并复制生成它们的提示词。" />
     <title>Open Image Prompts — 看好图，复制好提示词</title>
+    <script>
+      try {
+        var __oipTheme = localStorage.getItem('open-image-prompts-theme')
+        document.documentElement.dataset.theme = __oipTheme === 'dark' ? 'dark' : 'light'
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

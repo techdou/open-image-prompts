@@ -5,6 +5,7 @@ import FilterBar from './components/FilterBar'
 import GallerySessionPanel from './components/GallerySessionPanel'
 import PromptDialog from './components/PromptDialog'
 import PromptGallery from './components/PromptGallery'
+import Logo from './components/ui/Logo'
 import { usePromptArchiveApi } from './hooks/usePromptArchiveApi'
 import { useLang } from './i18n'
 
@@ -119,7 +120,10 @@ function App() {
 
       <footer className="relative border-t border-line">
         <div className="mx-auto flex w-full max-w-[1760px] flex-col gap-3 px-5 py-10 text-[13px] text-muted md:flex-row md:items-center md:justify-between md:px-10">
-          <span className="font-display text-base font-semibold text-ink">Open Image Prompts</span>
+          <span className="inline-flex items-center gap-2.5 font-display text-base font-semibold text-ink">
+            <Logo className="size-5" />
+            Open Image Prompts
+          </span>
           <span>{t('footer.tagline')}</span>
           <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-faint">{t('footer.mark')}</span>
         </div>

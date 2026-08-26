@@ -13,6 +13,8 @@ export const dict = {
     'nav.status': 'Open collection · Always updating',
     'nav.status.short': 'Live',
     'nav.github': 'Open GitHub repository',
+    'nav.theme.light': 'Switch to light theme',
+    'nav.theme.dark': 'Switch to dark theme',
 
     'hero.eyebrow': 'Open Image Prompts',
     'hero.eyebrow.suffix': 'Prompt–image archive',
@@ -122,6 +124,8 @@ export const dict = {
     'nav.status': '开放图库 · 持续收录',
     'nav.status.short': '收录中',
     'nav.github': '打开 GitHub 开源仓库',
+    'nav.theme.light': '切换到浅色模式',
+    'nav.theme.dark': '切换到深色模式',
 
     'hero.eyebrow': 'Open Image Prompts',
     'hero.eyebrow.suffix': '图像与提示词档案',

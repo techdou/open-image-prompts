@@ -72,16 +72,16 @@ export default function PromptCard({ item, index, onSelect, onCopied }) {
           eager={index < 6}
         />
 
-        <div className="card-top pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-abyss/70 to-transparent p-2.5 pb-7">
+        <div className="card-top pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-media/70 to-transparent p-2.5 pb-7">
           {tool ? (
-            <span className="rounded-full border border-white/12 bg-abyss/55 px-2.5 py-1 font-mono text-[10px] font-medium text-white/85 backdrop-blur-md">
+            <span className="rounded-full border border-white/12 bg-media/55 px-2.5 py-1 font-mono text-[10px] font-medium text-white/85 backdrop-blur-md">
               {tool}
             </span>
           ) : (
             <span />
           )}
           {(imageCount > 1 || hasVideo) && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/12 bg-abyss/55 px-2.5 py-1 font-mono text-[10px] text-white/85 backdrop-blur-md">
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/12 bg-media/55 px-2.5 py-1 font-mono text-[10px] text-white/85 backdrop-blur-md">
               {hasVideo ? (
                 <>
                   <Play size={10} weight="fill" /> {t('card.video')}
@@ -93,7 +93,7 @@ export default function PromptCard({ item, index, onSelect, onCopied }) {
           )}
         </div>
 
-        <div className="card-veil pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-abyss/95 via-abyss/75 to-transparent px-3.5 pb-3.5 pt-14">
+        <div className="card-veil pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-media/95 via-media/75 to-transparent px-3.5 pb-3.5 pt-14">
           {isRelated && (
             <div className="mb-2 flex flex-wrap gap-1">
               <span className="rounded-full border border-amber-300/45 bg-amber-950/65 px-2 py-0.5 font-mono text-[9px] text-amber-100">
@@ -105,7 +105,7 @@ export default function PromptCard({ item, index, onSelect, onCopied }) {
           {matchReasons.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-1">
               {matchReasons.map((reason, reasonIndex) => (
-                <span key={`${reason}-${reasonIndex}`} className="rounded-full border border-brass/35 bg-abyss/70 px-2 py-0.5 font-mono text-[9px] text-brass-soft">
+                <span key={`${reason}-${reasonIndex}`} className="rounded-full border border-brass/35 bg-media/70 px-2 py-0.5 font-mono text-[9px] text-brass-soft">
                   {reason}
                 </span>
               ))}

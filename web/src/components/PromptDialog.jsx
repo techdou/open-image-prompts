@@ -108,7 +108,7 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
         transition={{ type: 'spring', stiffness: 260, damping: 28 }}
         className="relative grid h-[100dvh] w-full grid-rows-[44dvh_minmax(0,1fr)] overflow-hidden bg-canvas md:h-[min(88dvh,860px)] md:max-w-[1280px] md:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.72fr)] md:grid-rows-1 md:rounded-3xl md:border md:border-line md:shadow-[0_48px_140px_-40px_rgba(0,0,0,0.9)]"
       >
-        <section className="relative min-h-[44dvh] overflow-hidden bg-abyss md:min-h-0" aria-label="Media">
+        <section className="relative min-h-[44dvh] overflow-hidden bg-media md:min-h-0" aria-label="Media">
           {currentMedia?.type === 'video-link' ? (
             <VideoPreview media={currentMedia} />
           ) : currentMedia ? (
@@ -131,10 +131,10 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
             <div className="grid h-full place-items-center text-sm text-muted">{t('dialog.noMedia')}</div>
           )}
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-abyss/80 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-media/80 to-transparent" />
 
           <div className="absolute left-4 top-4 flex items-center gap-2 md:left-5 md:top-5">
-            <div className="flex items-center gap-1 rounded-full border border-white/12 bg-abyss/60 p-1 backdrop-blur-md">
+            <div className="flex items-center gap-1 rounded-full border border-white/12 bg-media/60 p-1 backdrop-blur-md">
               <button
                 type="button"
                 onClick={() => onStep(-1)}
@@ -156,7 +156,7 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
               </button>
             </div>
             {media.length > 1 && (
-              <span className="rounded-full border border-white/12 bg-abyss/60 px-3 py-1.5 font-mono text-[10px] text-white/70 backdrop-blur-md">
+              <span className="rounded-full border border-white/12 bg-media/60 px-3 py-1.5 font-mono text-[10px] text-white/70 backdrop-blur-md">
                 {currentIndex + 1} / {media.length}
               </span>
             )}
@@ -166,7 +166,7 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            className="focus-ring absolute right-4 top-4 grid size-10 place-items-center rounded-full border border-white/12 bg-abyss/60 text-white/85 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white md:right-5 md:top-5"
+            className="focus-ring absolute right-4 top-4 grid size-10 place-items-center rounded-full border border-white/12 bg-media/60 text-white/85 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white md:right-5 md:top-5"
             aria-label={t('dialog.close')}
           >
             <X size={17} />
@@ -180,7 +180,7 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
               <MediaNavButton direction="right" onClick={showNext} label={t('dialog.nextMedia')}>
                 <CaretRight size={17} />
               </MediaNavButton>
-              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full border border-white/12 bg-abyss/60 p-2 backdrop-blur-md">
+              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full border border-white/12 bg-media/60 p-2 backdrop-blur-md">
                 {media.map((entry, index) => (
                   <button
                     key={`${entry.type}-${index}`}
@@ -269,7 +269,7 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
               </div>
             </div>
 
-            <div className="flex-1 rounded-2xl border border-line bg-abyss/60 p-4 md:p-5">
+            <div className="flex-1 rounded-2xl border border-line bg-well/60 p-4 md:p-5">
               <pre className="prompt-pre">{displayedPrompt}</pre>
             </div>
 
@@ -316,7 +316,7 @@ function MediaNavButton({ direction, onClick, label, children }) {
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`focus-ring absolute top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-white/12 bg-abyss/60 text-white/85 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white ${
+      className={`focus-ring absolute top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-white/12 bg-media/60 text-white/85 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white ${
         direction === 'left' ? 'left-4' : 'right-4'
       }`}
     >

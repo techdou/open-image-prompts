@@ -61,7 +61,7 @@ export default function GallerySessionPanel({ session, missingReferences = [], o
       </div>
 
       {prompt && (
-        <div className="mt-5 rounded-2xl border border-line bg-abyss/55 p-4 md:p-5">
+        <div className="mt-5 rounded-2xl border border-line bg-well/55 p-4 md:p-5">
           <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-faint">{t('session.derived')}</p>
           <pre className="prompt-pre max-h-56 overflow-y-auto">{prompt}</pre>
         </div>
