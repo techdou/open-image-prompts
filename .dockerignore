@@ -18,3 +18,4 @@ db/*.db-shm
 # Docker daemon as build context on every build.
 images
 db/*.db.gz
+!db/prompts.db.gz

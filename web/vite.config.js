@@ -120,6 +120,7 @@ export default defineConfig({
   },
   preview: {
     host: '127.0.0.1',
+    allowedHosts: ['oi.techdou.cn'],
     proxy: {
       '/api': `http://127.0.0.1:${API_PORT}`,
       '/health': `http://127.0.0.1:${API_PORT}`,

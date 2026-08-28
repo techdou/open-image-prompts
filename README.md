@@ -6,6 +6,10 @@
   <strong>English</strong> · <a href="./README.zh-CN.md">简体中文</a>
 </p>
 
+<p align="center">
+  🌐 Live demo: <a href="https://oi.techdou.cn"><strong>oi.techdou.cn</strong></a>
+</p>
+
 # Open Image Prompts
 
 An open, local-first visual prompt archive with two installable Agent Skills:
@@ -125,6 +129,37 @@ docker run --rm --name open-image-prompts -p 4173:4173 open-image-prompts
 Open <http://localhost:4173>. The API remains loopback-only inside the container and is exposed only through the frontend proxy. The image runs as the unprivileged `node` user and includes a `/health` health check.
 
 The build downloads the SQLite archive from GitHub Releases (network access to github.com is required) and serves images through source-URL fallback. The same commands work with Docker Desktop on Windows/macOS and Docker Engine on Linux.
+
+### Deploying behind a reverse proxy / domain
+
+Three practical notes for production deployments:
+
+1. **Host allowlist**: the in-container preview server only accepts `localhost` Host headers by default. When serving through a domain or reverse proxy (Cloudflare Tunnel, Nginx, …), add the domain to `preview.allowedHosts` in `web/vite.config.js`, otherwise public requests return 403:
+
+   ```js
+   preview: {
+     allowedHosts: ['your.domain.example'],
+     // ...
+   }
+   ```
+
+2. **Mount data as volumes instead of baking it into the image**: the full image packs extract to roughly 4.8 GB; baking them in forces every rebuild to ship multi-GB build contexts. Mount `images/` and `db/` so image and data updates stay independent:
+
+   ```bash
+   docker run -d --name open-image-prompts-prod --restart unless-stopped \
+     -p 127.0.0.1:4173:4173 \
+     -v "$PWD/images:/app/images:ro" \
+     -v "$PWD/db:/app/db" \
+     open-image-prompts
+   ```
+
+3. **Offline dataset install**: when the build host has an unreliable route to GitHub, pre-download the assets (verifying sha256 yourself) and install through the script's native offline mode — no network needed during install:
+
+   ```bash
+   python3 scripts/fetch_dataset.py --assets-dir /path/to/prepared-assets
+   ```
+
+   When a new dataset release ships, re-run the same command (extraction is incremental via `.oip/packs` markers) and restart the container.
 
 ## Install the Skills
 

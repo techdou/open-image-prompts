@@ -4,6 +4,8 @@
 *.local
 *.pem
 *.key
+*.token
+secrets/
 
 # ---- editor / dev-tool configs (keep dev setup out of history) ----
 .vscode/
@@ -14,12 +16,17 @@
 .agents/
 .trae/
 .windsurf/
+.codex/
+.qoder/
+.kiro/
 
 # ---- internal notes (private docs stay out of the repo) ----
 notes/
 NOTES*.md
 TODO*.md
 *.internal.md
+*NOTES*.md
+DEPLOY*.md
 
 # ---- python ----
 __pycache__/

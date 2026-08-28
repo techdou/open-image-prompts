@@ -20,7 +20,12 @@ COPY . .
 # so the build needs network access to github.com. Images are skipped: the
 # containerized gallery serves original source URLs as fallback.
 RUN node scripts/run_python.mjs scripts/fetch_dataset.py --db-only \
-    && npm test \
+    && npm run verify:docs \
+    && npm run verify:data \
+    && npm run test:api \
+    && npm run test:gallery \
+    && node scripts/run_python.mjs -m unittest tests/test_related_retrieval.py \
+    && npm --prefix web test \
     && npm run lint \
     && npm run build \
     && rm -rf /app/.oip

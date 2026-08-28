@@ -6,6 +6,10 @@
   <a href="./README.md">English</a> · <strong>简体中文</strong>
 </p>
 
+<p align="center">
+  🌐 在线演示：<a href="https://oi.techdou.cn"><strong>oi.techdou.cn</strong></a>
+</p>
+
 # Open Image Prompts
 
 一个开源、本地优先的视觉提示词资料库，并提供两个可以安装到智能体中的 Skill：
@@ -124,6 +128,37 @@ docker run --rm --name open-image-prompts -p 4173:4173 open-image-prompts
 然后访问 <http://localhost:4173>。API 仍然只监听容器内部回环地址，仅通过前端代理对外提供；容器使用非特权 `node` 用户运行，并提供 `/health` 健康检查。
 
 构建过程会从 GitHub Releases 下载 SQLite 归档（需要能访问 github.com），图片通过原始来源地址回退展示。以上命令适用于 Windows/macOS 的 Docker Desktop 和 Linux Docker Engine。
+
+### 对外部署（反向代理 / 域名访问）
+
+生产部署有三个实用要点：
+
+1. **域名白名单**：容器内的预览服务器默认只接受 `localhost` 的 Host 头。通过域名或反向代理（Cloudflare Tunnel、Nginx 等）对外服务时，在 `web/vite.config.js` 的 `preview` 配置中加上域名，否则公网访问会返回 403：
+
+   ```js
+   preview: {
+     allowedHosts: ['your.domain.example'],
+     // ...
+   }
+   ```
+
+2. **数据走 volume，不打进镜像**：完整图片包解包后约 4.8 GB，打进镜像会让每次重建都拖着数 GB 的构建上下文。推荐把 `images/` 与 `db/` 挂载进容器，镜像更新与数据更新互不影响：
+
+   ```bash
+   docker run -d --name open-image-prompts-prod --restart unless-stopped \
+     -p 127.0.0.1:4173:4173 \
+     -v "$PWD/images:/app/images:ro" \
+     -v "$PWD/db:/app/db" \
+     open-image-prompts
+   ```
+
+3. **离线安装数据集**：构建环境到 GitHub 网络不稳时，可先在宿主机把资产下载好（自行校验 sha256），再用脚本原生的离线模式安装，全程不联网：
+
+   ```bash
+   python3 scripts/fetch_dataset.py --assets-dir /path/to/prepared-assets
+   ```
+
+   数据集发布新版本后，重新执行上述命令（按 `.oip/packs` 标记增量解包）并重启容器即可生效。
 
 ## 安装 Skills
 
