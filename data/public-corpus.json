@@ -1,14 +1,14 @@
 {
-  "dataset_version": "2026-09-03-0307",
+  "dataset_version": "2026-09-04-0306",
   "taxonomy_version": "oip-visual-v2",
   "selection": "full public corpus; labeling process tables excluded",
   "counts": {
-    "prompts": 17430,
-    "images": 30921,
-    "translations": 34850,
-    "prompt_labels": 202996,
-    "media_labels": 354294,
+    "prompts": 17533,
+    "images": 31104,
+    "translations": 35056,
+    "prompt_labels": 204203,
+    "media_labels": 356329,
     "taxonomy_labels": 185
   },
-  "db_sha256": "6b0d846d2a28c88a2c4c58b25d509e97a018547f694f2fa8da9a4e4ef1b7d1cf"
+  "db_sha256": "ec8975a0629f9d7e8962b5957b12ed7debaf4a711b1e096ec393fe79eb5f8b7c"
 }
