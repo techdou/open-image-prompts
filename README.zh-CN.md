@@ -27,6 +27,7 @@
 
 ## 本分支的改动
 
+- **内容分级** — 全部图片由本地 [Falconsai/nsfw_image_detection](https://huggingface.co/Falconsai/nsfw_image_detection) 分类器离线打分（`npm run audit:nsfw`，结果存 `data/content-ratings.jsonl`）。画廊默认模糊标记记录；筛选栏的「模糊 / 显示 / 隐藏」三态开关控制展示方式，详情弹窗需显式点击才揭示单张图片。未评分记录照常显示，部分跑过的分级只会减少遮罩数量、不会误伤。
 - **主题系统** — 默认浅色「Day Gallery」主题，页头按钮一键切换回原始深色「Night Gallery」；选择保存在 `localStorage`，首帧渲染前生效（不闪屏），并同步手机浏览器地址栏颜色。
 - **主题语义分离** — 叠在图片上的元素（卡片渐变、徽章、详情弹窗媒体区）在两种主题下都保持深色灯箱；提示词文本框等凹陷容器跟随主题变化。
 - **统一 Logo** — 几何「OI」标识（黄铜圆角方块）贯穿 favicon、页头、页脚。

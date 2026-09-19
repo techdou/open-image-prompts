@@ -1,6 +1,7 @@
-import { Copy, Play } from '@phosphor-icons/react'
+import { Copy, Play, WarningCircle } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { writeClipboard } from '../clipboard'
+import { isGated, useContentPreference } from '../contentPreference.jsx'
 import { useLang } from '../i18n'
 import { firstImageSources } from '../media'
 import SmartImage from './ui/SmartImage'
@@ -21,6 +22,8 @@ function reasonLabel(reason) {
 
 export default function PromptCard({ item, index, onSelect, onCopied }) {
   const { t, locale } = useLang()
+  const { mode: contentMode } = useContentPreference()
+  const sensitive = isGated(item.rating) && contentMode !== 'show'
   const imageCount = item.images?.length || 0
   const hasVideo = Boolean(item.videos?.length)
   const tool = item.tool && item.tool !== 'None' ? item.tool : null
@@ -68,9 +71,18 @@ export default function PromptCard({ item, index, onSelect, onCopied }) {
         <SmartImage
           sources={firstImageSources(item)}
           alt={t('card.alt', { author: item.author })}
-          className={`h-full w-full ${ratio ? '' : 'aspect-[4/5]'}`}
+          className={`h-full w-full ${ratio ? '' : 'aspect-[4/5]'} ${sensitive ? 'scale-125 blur-2xl' : ''}`}
           eager={index < 6}
         />
+
+        {sensitive && (
+          <span className="pointer-events-none absolute inset-0 z-[5] grid place-items-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-abyss/70 px-3 py-1.5 font-mono text-[10px] text-white/85 backdrop-blur-md">
+              <WarningCircle size={12} weight="fill" />
+              {t('card.sensitive')}
+            </span>
+          </span>
+        )}
 
         <div className="card-top pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 bg-gradient-to-b from-media/70 to-transparent p-2.5 pb-7">
           {tool ? (

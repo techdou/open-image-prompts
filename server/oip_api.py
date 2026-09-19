@@ -17,6 +17,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
+from content_ratings import ContentRatings
 from runtime.archive_db import (
     DEFAULT_ARCHIVE_PATH,
     DEFAULT_DB_PATH,
@@ -33,6 +34,7 @@ QUERY_CONCURRENCY = max(1, int(os.environ.get("OIP_API_QUERY_CONCURRENCY", "4"))
 QUERY_WAIT_SECONDS = max(0.1, float(os.environ.get("OIP_API_QUERY_WAIT_SECONDS", "3")))
 PROMPT_CACHE_ENTRIES = max(0, int(os.environ.get("OIP_API_CACHE_ENTRIES", "128")))
 MAX_PAGE_SIZE = 60
+RATINGS = ContentRatings()
 _catalog_cache: dict | None = None
 _catalog_lock = Lock()
 _query_slots = BoundedSemaphore(QUERY_CONCURRENCY)
@@ -120,18 +122,21 @@ def prompt_cache_put(key: tuple, data: bytes) -> None:
 
 def item_for(connection: sqlite3.Connection, row: sqlite3.Row, taxonomy: str) -> dict:
     tweet_id = str(row["tweet_id"])
+    image_rows = connection.execute(
+        "SELECT id,image_index,url,local_path FROM images WHERE tweet_id=? ORDER BY image_index",
+        (tweet_id,),
+    ).fetchall()
+    indexes = [image["image_index"] for image in image_rows]
     images = [
         {
             "id": str(image["id"]),
             "index": image["image_index"],
             "url": image["url"],
             "local": image["local_path"] or None,
+            "rating": RATINGS.image_rating(tweet_id, image["image_index"]),
             "tags": {},
         }
-        for image in connection.execute(
-            "SELECT id,image_index,url,local_path FROM images WHERE tweet_id=? ORDER BY image_index",
-            (tweet_id,),
-        )
+        for image in image_rows
     ]
     translations = {
         entry["locale"]: entry["translated_text"]
@@ -149,6 +154,7 @@ def item_for(connection: sqlite3.Connection, row: sqlite3.Row, taxonomy: str) ->
         "created_at": row["created_at"],
         "tweet_url": row["tweet_url"],
         "collected_at": row["collected_at"],
+        "rating": RATINGS.item_rating(tweet_id, indexes),
         "images": images,
         "videos": [],
         # Tag filtering and labels come from /api/catalog. Keeping the large

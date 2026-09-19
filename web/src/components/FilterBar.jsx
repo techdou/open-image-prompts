@@ -1,5 +1,8 @@
 import {
+  Eye,
+  EyeSlash,
   MagnifyingGlass,
+  Prohibit,
   SortAscending,
   SortDescending,
   X,
@@ -36,6 +39,8 @@ export default function FilterBar({
   onTagChange,
   sortOrder,
   onSortChange,
+  contentMode,
+  onContentModeChange,
   resultCount,
   hasActiveFilters,
   onReset,
@@ -137,18 +142,46 @@ export default function FilterBar({
           </form>
 
           <div className="grid h-11 shrink-0 grid-cols-2 rounded-full border border-line bg-surface/80 p-1 max-sm:order-3 max-sm:ml-auto max-sm:h-10">
-            <SortButton
+            <SegmentButton
               active={sortOrder === 'newest'}
               onClick={() => onSortChange('newest')}
               label={t('filter.sort.newest')}
               icon={SortDescending}
               disabled={disabled}
             />
-            <SortButton
+            <SegmentButton
               active={sortOrder === 'oldest'}
               onClick={() => onSortChange('oldest')}
               label={t('filter.sort.oldest')}
               icon={SortAscending}
+              disabled={disabled}
+            />
+          </div>
+
+          <div
+            className="grid h-11 shrink-0 grid-cols-3 rounded-full border border-line bg-surface/80 p-1 max-sm:order-4 max-sm:h-10"
+            role="group"
+            aria-label={t('filter.content.label')}
+          >
+            <SegmentButton
+              active={contentMode === 'blur'}
+              onClick={() => onContentModeChange('blur')}
+              label={t('filter.content.blur')}
+              icon={EyeSlash}
+              disabled={disabled}
+            />
+            <SegmentButton
+              active={contentMode === 'show'}
+              onClick={() => onContentModeChange('show')}
+              label={t('filter.content.show')}
+              icon={Eye}
+              disabled={disabled}
+            />
+            <SegmentButton
+              active={contentMode === 'hide'}
+              onClick={() => onContentModeChange('hide')}
+              label={t('filter.content.hide')}
+              icon={Prohibit}
               disabled={disabled}
             />
           </div>
@@ -275,7 +308,7 @@ export default function FilterBar({
   )
 }
 
-function SortButton({ active, onClick, label, icon: Icon, disabled }) {
+function SegmentButton({ active, onClick, label, icon: Icon, disabled }) {
   return (
     <button
       type="button"

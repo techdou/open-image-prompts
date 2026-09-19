@@ -28,6 +28,7 @@ Dataset assets ship through [GitHub Releases](https://github.com/NanmiCoder/open
 
 ## What's different in this fork
 
+- **Content ratings** — every image is scored offline by a local [Falconsai/nsfw_image_detection](https://huggingface.co/Falconsai/nsfw_image_detection) classifier (`npm run audit:nsfw`, results in `data/content-ratings.jsonl`). The gallery blurs flagged records by default; a Blur / Show / Hide switch in the filter bar controls the display, and the detail dialog reveals an image only on explicit click. Unrated records stay visible, so a partial pass degrades to fewer gated images.
 - **Theme system** — light ("Day Gallery") is the default; the header toggle switches to the original dark ("Night Gallery") theme. The choice persists in `localStorage`, applies before first paint (no flash), and keeps the mobile browser chrome color in sync.
 - **Theme-aware semantics** — elements layered on top of photos (card gradients, badges, dialog media panel) stay dark in both themes; recessed surfaces like the prompt text well adapt to the active theme.
 - **Unified logo** — one geometric "OI" mark (brass rounded square) shared by the favicon, header, and footer.

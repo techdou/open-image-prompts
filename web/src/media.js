@@ -35,6 +35,7 @@ export function mediaItems(item) {
       type: 'image',
       sources: imageSources(image),
       sourceUrl: image.url,
+      rating: image.rating || null,
       label: `图片 ${image.index}`,
     })),
     ...(item.videos || []).map((video) => ({

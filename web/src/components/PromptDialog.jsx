@@ -11,19 +11,23 @@ import {
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { writeClipboard } from '../clipboard'
+import { isGated, useContentPreference } from '../contentPreference.jsx'
 import { useLang } from '../i18n'
 import { mediaItems } from '../media'
 import SmartImage from './ui/SmartImage'
 
 export default function PromptDialog({ item, position, total, onClose, onStep, onCopied }) {
   const { t, locale } = useLang()
+  const { mode: contentMode } = useContentPreference()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [copyState, setCopyState] = useState('idle')
   const [showOriginal, setShowOriginal] = useState(true)
+  const [revealed, setRevealed] = useState(false)
   const closeButtonRef = useRef(null)
   const resetTimerRef = useRef(null)
   const media = mediaItems(item)
   const currentMedia = media[currentIndex]
+  const sensitiveHidden = isGated(currentMedia?.rating) && contentMode !== 'show' && !revealed
   const hasReadingTranslation = Boolean(item.localized_prompt && item.localized_prompt !== item.prompt_text)
   const displayedPrompt = showOriginal || !hasReadingTranslation ? item.prompt_text : item.localized_prompt
 
@@ -39,8 +43,14 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
     setCurrentIndex(0)
     setCopyState('idle')
     setShowOriginal(true)
+    setRevealed(false)
     window.clearTimeout(resetTimerRef.current)
   }, [item.tweet_id])
+
+  // Reveal is per media entry: stepping to another image hides again.
+  useEffect(() => {
+    setRevealed(false)
+  }, [currentIndex])
 
   useEffect(() => {
     const previousFocus = document.activeElement
@@ -113,19 +123,33 @@ export default function PromptDialog({ item, position, total, onClose, onStep, o
             <VideoPreview media={currentMedia} />
           ) : currentMedia ? (
             <>
-              <img
-                src={currentMedia.sources[0]}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full scale-125 object-cover opacity-25 blur-2xl"
-              />
+              {!sensitiveHidden && (
+                <img
+                  src={currentMedia.sources[0]}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full scale-125 object-cover opacity-25 blur-2xl"
+                />
+              )}
               <SmartImage
                 sources={currentMedia.sources}
                 alt={`${mediaLabel(currentMedia, currentIndex)} — @${item.author}`}
-                className="relative h-full w-full"
+                className={`relative h-full w-full ${sensitiveHidden ? 'scale-125 blur-2xl' : ''}`}
                 eager
                 fit="contain"
               />
+              {sensitiveHidden && (
+                <div className="absolute inset-0 z-10 grid place-items-center bg-abyss/60">
+                  <button
+                    type="button"
+                    onClick={() => setRevealed(true)}
+                    className="focus-ring inline-flex items-center gap-2 rounded-full bg-brass px-5 py-3 text-sm font-semibold text-abyss shadow-[0_16px_40px_-16px_rgba(0,0,0,0.8)] transition-transform active:scale-[0.97]"
+                  >
+                    <WarningCircle size={16} weight="fill" />
+                    {t('dialog.sensitive.show')}
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <div className="grid h-full place-items-center text-sm text-muted">{t('dialog.noMedia')}</div>

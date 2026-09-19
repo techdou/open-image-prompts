@@ -44,6 +44,10 @@ export const dict = {
     'filter.active': 'Filters',
     'filter.clearAll': 'Clear all',
     'filter.oldestFirst': 'Oldest first',
+    'filter.content.label': 'Sensitive content display',
+    'filter.content.blur': 'Blur',
+    'filter.content.show': 'Show',
+    'filter.content.hide': 'Hide',
 
     'select.noMatch': 'No matches',
     'select.searchHint': 'Type to search all {n} entries',
@@ -52,6 +56,7 @@ export const dict = {
     'card.alt': 'AI visual by @{author}',
     'card.video': 'Video',
     'card.imageCount': '{n}',
+    'card.sensitive': 'Sensitive content',
     'card.copy': 'Copy',
     'card.copyAria': 'Copy prompt',
     'card.copied': 'Prompt copied to clipboard',
@@ -108,6 +113,7 @@ export const dict = {
     'dialog.videos.one': '{n} video',
     'dialog.videos.other': '{n} videos',
     'dialog.mediaLabel': 'View {label}',
+    'dialog.sensitive.show': 'Show sensitive content',
 
     'archive.error.status': 'Request failed with status {status}',
     'archive.error.format': 'Invalid data format',
@@ -155,6 +161,10 @@ export const dict = {
     'filter.active': '筛选中',
     'filter.clearAll': '全部清除',
     'filter.oldestFirst': '最早优先',
+    'filter.content.label': '敏感内容显示方式',
+    'filter.content.blur': '模糊',
+    'filter.content.show': '显示',
+    'filter.content.hide': '隐藏',
 
     'select.noMatch': '没有匹配项',
     'select.searchHint': '输入关键词可检索全部 {n} 项',
@@ -163,6 +173,7 @@ export const dict = {
     'card.alt': '@{author} 发布的 AI 视觉作品',
     'card.video': '视频',
     'card.imageCount': '{n} 张',
+    'card.sensitive': '敏感内容',
     'card.copy': '复制',
     'card.copyAria': '直接复制 Prompt',
     'card.copied': 'Prompt 已复制到剪贴板',
@@ -219,6 +230,7 @@ export const dict = {
     'dialog.videos.one': '{n} 个视频',
     'dialog.videos.other': '{n} 个视频',
     'dialog.mediaLabel': '查看{label}',
+    'dialog.sensitive.show': '显示敏感内容',
 
     'archive.error.status': '数据请求返回 {status}',
     'archive.error.format': '数据格式不正确',
