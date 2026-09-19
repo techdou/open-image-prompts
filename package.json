@@ -11,6 +11,7 @@
     "setup:web": "npm run setup",
     "data:pull": "node scripts/run_python.mjs scripts/fetch_dataset.py",
     "data:pull:db": "node scripts/run_python.mjs scripts/fetch_dataset.py --db-only",
+    "audit:nsfw": "uv run --with torch --with transformers --with pillow python scripts/audit_nsfw.py",
     "dev": "npm --prefix web run dev",
     "status": "node scripts/run_python.mjs skills/img-gen-prompts/scripts/oip.py status",
     "test": "npm run verify:docs && npm run verify:data && npm run test:api && npm run test:gallery && npm run test:retrieval && npm --prefix web test",

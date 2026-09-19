@@ -1,6 +1,7 @@
 import { Moon, Sun } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
+import { isGated, useContentPreference } from '../contentPreference.jsx'
 import { LANG_OPTIONS, useLang } from '../i18n'
 import { firstImageSources } from '../media'
 import Logo from './ui/Logo'
@@ -133,10 +134,14 @@ function LangSwitch() {
 
 function Marquee({ items, onSelect }) {
   const { t } = useLang()
+  const { mode: contentMode } = useContentPreference()
   const slides = useMemo(() => {
-    const picks = items.filter((item) => firstImageSources(item).length > 0).slice(0, 28)
+    const picks = items
+      .filter((item) => firstImageSources(item).length > 0)
+      .filter((item) => contentMode !== 'hide' || !isGated(item.rating))
+      .slice(0, 28)
     return [...picks, ...picks]
-  }, [items])
+  }, [items, contentMode])
 
   if (slides.length === 0) return null
 
@@ -161,7 +166,9 @@ function Marquee({ items, onSelect }) {
                 sources={firstImageSources(item)}
                 alt={isDuplicate ? '' : t('card.alt', { author: item.author })}
                 eager={index < 8}
-                className="h-full w-full"
+                className={`h-full w-full ${
+                  isGated(item.rating) && contentMode !== 'show' ? 'scale-110 blur-md' : ''
+                }`}
               />
             </button>
           )

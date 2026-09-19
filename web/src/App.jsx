@@ -97,6 +97,8 @@ function App() {
           onTagChange={archive.setSelectedTag}
           sortOrder={archive.sortOrder}
           onSortChange={archive.setSortOrder}
+          contentMode={archive.contentMode}
+          onContentModeChange={archive.setContentMode}
           resultCount={archive.filteredCount}
           hasActiveFilters={archive.hasActiveFilters}
           onReset={archive.resetFilters}

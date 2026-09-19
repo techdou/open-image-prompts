@@ -52,3 +52,25 @@ never references them. Reclaim the space when you want to:
 ```bash
 python3 scripts/fetch_dataset.py --prune
 ```
+
+## Content ratings
+
+`data/content-ratings.jsonl` is a small, committed sidecar with per-image
+safety ratings produced by an offline classifier pass — it is not part of the
+SQLite archive and never written at runtime. One meta line (schema version,
+model id, thresholds, counts) is followed by one compact record per rated
+image: `{"k":"<tweet_id>/<image_index>","s":<score>,"r":"sfw|borderline|nsfw"}`.
+The API layer (`server/content_ratings.py`) reads it and attaches ratings to
+`/api/prompts` responses; missing entries simply mean "not rated yet".
+
+Regenerate or extend it with:
+
+```bash
+npm run audit:nsfw                       # rate everything still missing
+npm run audit:nsfw -- --sample 100       # random subset, for calibration
+```
+
+The pass needs a local copy of the model (a directory with `config.json` +
+`model.safetensors`); heavy Python dependencies (torch, transformers) are
+fetched on the fly by `uv`, not added to `pyproject.toml`. Raw scores are
+kept, so threshold changes never require a re-run — only a rewrite.

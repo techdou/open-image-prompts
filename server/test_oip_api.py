@@ -59,11 +59,37 @@ def public_database_stats() -> dict[str, int | str]:
     return stats
 
 
+def rating_fixture() -> tuple[Path, str]:
+    """A tiny sidecar that marks one real archive image as nsfw."""
+    database = ensure_working_database()
+    with connect_read_only(database) as connection:
+        row = connection.execute(
+            "SELECT tweet_id,image_index FROM images ORDER BY id LIMIT 1"
+        ).fetchone()
+    key = f"{row['tweet_id']}/{row['image_index']}"
+    path = REPOSITORY_ROOT / ".oip" / "test-ratings.jsonl"
+    meta = {
+        "schema_version": 1,
+        "model": {"id": "test", "revision": "test"},
+        "thresholds": {"nsfw_min": 0.85, "borderline_min": 0.4},
+        "generated_at": "2026-01-01T00:00:00Z",
+        "counts": {"sfw": 0, "borderline": 0, "nsfw": 1, "total": 1},
+    }
+    records = (
+        json.dumps(meta) + "\n",
+        json.dumps({"k": key, "s": 0.97, "r": "nsfw"}) + "\n",
+    )
+    path.write_text("".join(records), encoding="utf-8")
+    return path, row["tweet_id"]
+
+
 def main() -> int:
+    ratings_path, rated_tweet_id = rating_fixture()
     port = free_port()
     environment = os.environ.copy()
     environment["OIP_API_PORT"] = str(port)
     environment["OIP_API_CACHE_ENTRIES"] = "4"
+    environment["OIP_RATINGS_PATH"] = str(ratings_path)
     process = subprocess.Popen(
         [sys.executable, str(REPOSITORY_ROOT / "server/oip_api.py")],
         cwd=REPOSITORY_ROOT,
@@ -144,6 +170,22 @@ def main() -> int:
         tagged = fetch_json(f"{base}/api/prompts?{tagged_query}")
         assert tagged["total"] > 0
         assert len(tagged["items"]) == 2
+
+        # Content-rating sidecar: the rated image carries its rating, its
+        # prompt aggregates to the strictest image rating, and unrated
+        # prompts stay null.
+        rated_query = urllib.parse.urlencode({"limit": 1, "ids": rated_tweet_id})
+        rated_item = fetch_json(f"{base}/api/prompts?{rated_query}")["items"][0]
+        assert rated_item["rating"] == "nsfw"
+        assert any(image["rating"] == "nsfw" for image in rated_item["images"])
+        unrated = next(
+            item
+            for item in first["items"]
+            if item["tweet_id"] != rated_tweet_id
+        )
+        assert unrated["rating"] is None
+        assert all(image["rating"] is None for image in unrated["images"])
+
         health = fetch_json(f"{base}/health")
         assert health["query_concurrency"] >= 1
         assert health["cache_entries"] <= 4
@@ -155,6 +197,7 @@ def main() -> int:
             process.wait(timeout=5)
         except subprocess.TimeoutExpired:
             process.kill()
+        ratings_path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

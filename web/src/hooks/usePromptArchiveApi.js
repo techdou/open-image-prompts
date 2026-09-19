@@ -7,6 +7,7 @@ import {
   validGalleryFocus,
 } from '../gallerySession'
 import { useLang } from '../i18n'
+import { isGated, useContentPreference } from '../contentPreference.jsx'
 import { initialSearchState, normalizeSearchQuery, searchReducer } from '../searchState'
 
 const PAGE_SIZE = 24
@@ -69,6 +70,7 @@ function localizedPrompt(item, lang) {
 
 export function usePromptArchiveApi() {
   const { lang } = useLang()
+  const { mode: contentMode, setMode: setContentMode } = useContentPreference()
   const [items, setItems] = useState([])
   const [catalog, setCatalog] = useState({ tools: [], authors: [], tags: [], stats: {} })
   const [dims, setDims] = useState({})
@@ -196,6 +198,14 @@ export function usePromptArchiveApi() {
     () => items.map((item) => hydrate(item, dims, lang)),
     [dims, items, lang],
   )
+  // 'hide' drops gated records from the wall; paging and the result count
+  // still follow the archive query, so nothing renumbers while browsing.
+  const visibleItems = useMemo(
+    () => (contentMode === 'hide'
+      ? localizedItems.filter((item) => !isGated(item.rating))
+      : localizedItems),
+    [contentMode, localizedItems],
+  )
   const tags = useMemo(() => catalog.tags.map((tag) => ({
     value: tag.value,
     label: lang === 'zh' ? tag.label_zh : tag.label_en,
@@ -216,7 +226,9 @@ export function usePromptArchiveApi() {
 
   return {
     items: localizedItems,
-    visibleItems: localizedItems,
+    visibleItems,
+    contentMode,
+    setContentMode,
     loading,
     error,
     retry: () => setRetryToken((token) => token + 1),
