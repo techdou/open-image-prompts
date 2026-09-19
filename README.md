@@ -26,6 +26,20 @@ The public dataset contains **18,690 source prompts**, **33,159 images**, **37,3
 
 Dataset assets ship through [GitHub Releases](https://github.com/NanmiCoder/open-image-prompts/releases) instead of Git LFS: the repository clone stays small, and `scripts/fetch_dataset.py` downloads the SQLite archive (~80 MB) plus optional monthly image packs (~4.3 GB total) with sha256 verification. See `data/dataset-manifest.json` for the exact asset list.
 
+## Contents
+
+- [What's different in this fork](#whats-different-in-this-fork)
+- [Repository vs. dataset assets](#repository-vs-dataset-assets)
+- [One-click start](#one-click-start)
+- [Dataset assets](#dataset-assets)
+- [Run with Docker](#run-with-docker)
+- [Install the Skills](#install-the-skills)
+- [Public data boundary](#public-data-boundary)
+- [Project structure](#project-structure)
+- [Validate a checkout](#validate-a-checkout)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## What's different in this fork
 
 - **Content ratings** — every image is scored offline by a local [Falconsai/nsfw_image_detection](https://huggingface.co/Falconsai/nsfw_image_detection) classifier (`npm run audit:nsfw`, results in `data/content-ratings.jsonl`). The gallery blurs flagged records by default; a Blur / Show / Hide switch in the filter bar controls the display, and the detail dialog reveals an image only on explicit click. Unrated records stay visible, so a partial pass degrades to fewer gated images.
@@ -213,6 +227,8 @@ The public DB deliberately contains only product runtime data:
 
 It does **not** contain labeling candidates, model/provider settings, run IDs, leases, model rationales, error paths, evaluation tables, or legacy label assignments.
 
+Content-safety ratings are not part of the database either: they live in the committed `data/content-ratings.jsonl` sidecar, produced by the offline audit pass and read at request time by the API. See [DATASET.md](./DATASET.md#content-ratings).
+
 See [DATASET.md](./DATASET.md), [DATA_LICENSE.md](./DATA_LICENSE.md), and the machine-readable [public corpus manifest](./data/public-corpus.json).
 
 ## Project structure
@@ -243,6 +259,10 @@ npm run status
 ```
 
 The API and Skill open SQLite in read-only immutable mode. Every service binds `127.0.0.1` by default and never starts a labeling job. The frontend starts at port `5173` and moves to the next free port when it is taken, printing the URL it actually serves; set `OIP_WEB_HOST`/`OIP_WEB_PORT` to pin them, in which case a port collision fails loudly instead of drifting. The Skill's gallery bridge behaves the same way around port `4173`.
+
+## Contributing
+
+Issues and pull requests are welcome on this fork for application code, Skills, and tooling. Dataset content itself is published upstream by [NanmiCoder/open-image-prompts](https://github.com/NanmiCoder/open-image-prompts). Content removal requests follow the process in [DATA_LICENSE.md](./DATA_LICENSE.md).
 
 ## License
 

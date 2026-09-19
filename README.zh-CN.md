@@ -25,6 +25,20 @@
 
 数据资产通过 [GitHub Releases](https://github.com/NanmiCoder/open-image-prompts/releases) 分发（不再使用 Git LFS）：仓库克隆保持轻量，`scripts/fetch_dataset.py` 会下载 SQLite 归档（约 80 MB）以及可选的按月图片包（合计约 4.3 GB），并做 sha256 校验。完整资产清单见 `data/dataset-manifest.json`。
 
+## 目录
+
+- [本分支的改动](#本分支的改动)
+- [代码仓库和数据集的关系](#代码仓库和数据集的关系)
+- [一键启动](#一键启动)
+- [数据集资产](#数据集资产)
+- [使用 Docker](#使用-docker)
+- [安装 Skills](#安装-skills)
+- [公开数据边界](#公开数据边界)
+- [目录结构](#目录结构)
+- [验证](#验证)
+- [参与贡献](#参与贡献)
+- [许可证](#许可证)
+
 ## 本分支的改动
 
 - **内容分级** — 全部图片由本地 [Falconsai/nsfw_image_detection](https://huggingface.co/Falconsai/nsfw_image_detection) 分类器离线打分（`npm run audit:nsfw`，结果存 `data/content-ratings.jsonl`）。画廊默认模糊标记记录；筛选栏的「模糊 / 显示 / 隐藏」三态开关控制展示方式，详情弹窗需显式点击才揭示单张图片。未评分记录照常显示，部分跑过的分级只会减少遮罩数量、不会误伤。
@@ -200,6 +214,8 @@ npm run test:retrieval
 
 公开 DB 不包含候选标签、模型或供应商配置、run ID、租约、模型理由、错误路径、评估表和 legacy 标签。
 
+内容分级同样不在数据库里：它存放在随仓库提交的 `data/content-ratings.jsonl` 旁路文件中，由离线审核脚本生成、API 请求时只读加载，详见 [DATASET.md](./DATASET.md#content-ratings)。
+
 更多信息见 [DATASET.md](./DATASET.md)、[DATA_LICENSE.md](./DATA_LICENSE.md) 和机器可读的 [公开语料清单](./data/public-corpus.json)。
 
 ## 目录结构
@@ -230,6 +246,10 @@ npm run status
 ```
 
 API 与 Skill 均以只读 immutable 模式打开 SQLite。所有服务默认只绑定 `127.0.0.1`，不会启动任何打标任务。前端从 `5173` 开始，端口被占用时自动顺延到下一个空闲端口，并打印它实际监听的地址；用 `OIP_WEB_HOST`/`OIP_WEB_PORT` 可以固定，此时端口冲突会直接报错而不是悄悄换端口。Skill 的画廊桥接服务在 `4173` 上是同样的行为。
+
+## 参与贡献
+
+欢迎在本仓库提 issue 和 pull request（应用代码、Skills 与工具脚本）。数据集内容由上游 [NanmiCoder/open-image-prompts](https://github.com/NanmiCoder/open-image-prompts) 发布；内容下架请求请按 [DATA_LICENSE.md](./DATA_LICENSE.md) 的流程提出。
 
 ## 许可证
 

@@ -50,6 +50,7 @@ images/
 
 # ---- logs & OS files ----
 *.log
+*.tmp
 .DS_Store
 Thumbs.db
 Desktop.ini
