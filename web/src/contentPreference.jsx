@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- shared module: constants + helpers + provider live together by design */
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
 export const CONTENT_STORAGE_KEY = 'open-image-prompts-content'
