@@ -19,6 +19,7 @@ secrets/
 .codex/
 .qoder/
 .kiro/
+.video_agent/
 
 # ---- internal notes (private docs stay out of the repo) ----
 notes/
