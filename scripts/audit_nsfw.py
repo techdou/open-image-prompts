@@ -47,8 +47,8 @@ DEFAULT_MODEL_DIRS = [
     Path(r"E:\models\nsfw_image_detection"),
     REPOSITORY_ROOT / ".oip" / "models" / "nsfw_image_detection",
 ]
-NSFW_MIN = 0.85
-BORDERLINE_MIN = 0.40
+NSFW_MIN = 0.60
+BORDERLINE_MIN = 0.15
 NSFW_LABEL = "nsfw"
 VALID_RATINGS = ("sfw", "borderline", "nsfw")
 
@@ -273,11 +273,32 @@ def main() -> int:
     parser.add_argument("--sample", type=int, help="rate a random subset of N unrated images")
     parser.add_argument("--limit", type=int, help="rate at most N unrated images, in archive order")
     parser.add_argument("--report", type=Path, help="copy rated images + an HTML index here for review")
+    parser.add_argument(
+        "--rethreshold",
+        action="store_true",
+        help="re-derive ratings from stored raw scores (no model) and rewrite the sidecar",
+    )
     args = parser.parse_args()
 
     started = time.time()
     meta, rated = read_sidecar(args.output)
     rows = image_rows()
+
+    if args.rethreshold:
+        # Re-derive ratings from the stored raw scores - no model, no inference.
+        changed = Counter()
+        for record in rated.values():
+            new = classify(record["s"])
+            if new != record["r"]:
+                changed[record["r"]] += 1
+                record["r"] = new
+        rewrite_sidecar(args.output, meta, rated)
+        print(
+            f"rethresholded {len(rated)} records at nsfw>={NSFW_MIN}, "
+            f"borderline>={BORDERLINE_MIN}: {dict(changed)}"
+        )
+        return 0
+
     pending = [row for row in rows if row["key"] not in rated]
     print(f"{len(rows)} image rows, {len(rated)} already rated, {len(pending)} pending")
 
