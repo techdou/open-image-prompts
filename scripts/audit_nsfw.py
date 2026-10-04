@@ -45,6 +45,7 @@ SCHEMA_VERSION = 1
 HF_MODEL_ID = "Falconsai/nsfw_image_detection"
 DEFAULT_MODEL_DIRS = [
     Path(r"E:\models\nsfw_image_detection"),
+    Path.home() / "models" / "nsfw_image_detection",
     REPOSITORY_ROOT / ".oip" / "models" / "nsfw_image_detection",
 ]
 NSFW_MIN = 0.60
