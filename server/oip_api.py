@@ -120,13 +120,14 @@ def prompt_cache_put(key: tuple, data: bytes) -> None:
             _prompt_cache.popitem(last=False)
 
 
-def item_for(connection: sqlite3.Connection, row: sqlite3.Row, taxonomy: str) -> dict:
+def item_for(connection: sqlite3.Connection, row: sqlite3.Row, taxonomy: str) -> dict | None:
     tweet_id = str(row["tweet_id"])
     image_rows = connection.execute(
         "SELECT id,image_index,url,local_path FROM images WHERE tweet_id=? ORDER BY image_index",
         (tweet_id,),
     ).fetchall()
-    indexes = [image["image_index"] for image in image_rows]
+    # "nsfw" means taken offline: those images never leave the API. Disk files
+    # stay (reversible); borderline images still ship behind the frontend blur.
     images = [
         {
             "id": str(image["id"]),
@@ -137,7 +138,10 @@ def item_for(connection: sqlite3.Connection, row: sqlite3.Row, taxonomy: str) ->
             "tags": {},
         }
         for image in image_rows
+        if RATINGS.image_rating(tweet_id, image["image_index"]) != "nsfw"
     ]
+    if image_rows and not images:
+        return None  # every image taken offline - the whole record goes dark
     translations = {
         entry["locale"]: entry["translated_text"]
         for entry in connection.execute(
@@ -154,7 +158,7 @@ def item_for(connection: sqlite3.Connection, row: sqlite3.Row, taxonomy: str) ->
         "created_at": row["created_at"],
         "tweet_url": row["tweet_url"],
         "collected_at": row["collected_at"],
-        "rating": RATINGS.item_rating(tweet_id, indexes),
+        "rating": RATINGS.item_rating(tweet_id, [image["index"] for image in images]),
         "images": images,
         "videos": [],
         # Tag filtering and labels come from /api/catalog. Keeping the large
@@ -361,13 +365,15 @@ class Handler(BaseHTTPRequestHandler):
             ).fetchall()
             rows_by_id = {str(row["tweet_id"]): row for row in rows}
             ordered_rows = [rows_by_id[tweet_id] for tweet_id in ids if tweet_id in rows_by_id]
+            items = [
+                item
+                for item in (item_for(connection, row, taxonomy) for row in ordered_rows)
+                if item is not None
+            ]
             return json.dumps(
                 {
-                    "items": [
-                        item_for(connection, row, taxonomy)
-                        for row in ordered_rows[:limit]
-                    ],
-                    "total": len(ordered_rows),
+                    "items": items[:limit],
+                    "total": len(items),
                     "offset": 0,
                     "limit": limit,
                 },
@@ -425,7 +431,11 @@ class Handler(BaseHTTPRequestHandler):
         ).fetchall()
         return json.dumps(
             {
-                "items": [item_for(connection, row, taxonomy) for row in rows],
+                "items": [
+                    item
+                    for item in (item_for(connection, row, taxonomy) for row in rows)
+                    if item is not None
+                ],
                 "total": total,
                 "offset": offset,
                 "limit": limit,

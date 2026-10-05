@@ -171,13 +171,19 @@ def main() -> int:
         assert tagged["total"] > 0
         assert len(tagged["items"]) == 2
 
-        # Content-rating sidecar: the rated image carries its rating, its
-        # prompt aggregates to the strictest image rating, and unrated
-        # prompts stay null.
-        rated_query = urllib.parse.urlencode({"limit": 1, "ids": rated_tweet_id})
-        rated_item = fetch_json(f"{base}/api/prompts?{rated_query}")["items"][0]
-        assert rated_item["rating"] == "nsfw"
-        assert any(image["rating"] == "nsfw" for image in rated_item["images"])
+        # Content-rating sidecar: an image rated nsfw is taken offline (not in
+        # the response at all), its prompt aggregates over the visible images
+        # only, and unrated prompts stay null.
+        rated_query = urllib.parse.urlencode({"limit": 5, "ids": rated_tweet_id})
+        rated_response = fetch_json(f"{base}/api/prompts?{rated_query}")
+        if rated_response["total"] == 0:
+            # every image of this prompt was nsfw - the whole record goes dark
+            pass
+        else:
+            rated_item = rated_response["items"][0]
+            assert all(image["rating"] != "nsfw" for image in rated_item["images"])
+            ratings = [image["rating"] for image in rated_item["images"]]
+            assert "nsfw" not in ratings
         unrated = next(
             item
             for item in first["items"]

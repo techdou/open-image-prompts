@@ -130,8 +130,10 @@ check suite on Ubuntu.
   mode; never add a write path, migration, or labeling job.
 - Content-safety ratings live in `data/content-ratings.jsonl` (a committed
   sidecar) and are produced offline by `npm run audit:nsfw`. The API reads them
-  via `server/content_ratings.py`; never compute ratings at request time or
-  write the sidecar from the server. Unrated simply means "not covered yet".
+  via `server/content_ratings.py` and enforces a three-tier policy: `nsfw`
+  images are omitted from API responses entirely, `borderline` ship blurred,
+  the rest display normally. Never compute ratings at request time or write
+  the sidecar from the server. Unrated simply means "not covered yet".
 - Never commit `db/`, `images/`, or `.oip/` contents.
 - The public DB deliberately excludes labeling candidates, model and provider
   settings, run IDs, rationales, and evaluation tables. Do not reintroduce them.

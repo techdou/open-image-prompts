@@ -60,7 +60,10 @@ safety ratings produced by an offline classifier pass — it is not part of the
 SQLite archive and never written at runtime. One meta line (schema version,
 model id, thresholds, counts) is followed by one compact record per rated
 image: `{"k":"<tweet_id>/<image_index>","s":<score>,"r":"sfw|borderline|nsfw"}`.
-The API layer (`server/content_ratings.py`) reads it and attaches ratings to
+Ratings map to a three-tier serving policy: `nsfw` images are taken offline
+(the API omits them; disk files stay for reversibility), `borderline` images
+ship behind the gallery's blur gate, `sfw` images display normally. The API
+layer (`server/content_ratings.py`) reads the sidecar and attaches ratings to
 `/api/prompts` responses; missing entries simply mean "not rated yet".
 
 Regenerate or extend it with:
